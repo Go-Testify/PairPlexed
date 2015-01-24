@@ -8,7 +8,8 @@ public class Bullet : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
+		Vector3 upForce = new Vector3(Random.Range(-1f,1f), Vector3.up.y, 0);
+		rigidbody.AddForce(upForce * shootingSpeed);
 	}
 
 	// Update is called once per frame
@@ -16,7 +17,8 @@ public class Bullet : MonoBehaviour {
 		if(isGamePlaying)
 		{
 			//move all the bullets forward if they are on the screen
-			transform.Translate(transform.up * shootingSpeed);
+			//transform.Translate(transform.up * shootingSpeed);
+			//rigidbody.AddForce(transform.up * shootingSpeed);
 		}
 	}
 

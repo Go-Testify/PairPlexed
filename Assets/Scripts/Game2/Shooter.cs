@@ -31,11 +31,9 @@ public class Shooter : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-
 	}
 
 	void FixedUpdate() {
-
 	}
 
 	//=====================  Main functionality  =================
@@ -59,7 +57,7 @@ public class Shooter : MonoBehaviour {
 	{
 		//Start moving the shooter and firing
 		StartCoroutine(setNewRandomPosition());
-		//StartCoroutine(fireBullet());
+		StartCoroutine(fireBullet());
 	}
 
 	//Will move to the position in between the walls - keep trying to a new position until it is happy
