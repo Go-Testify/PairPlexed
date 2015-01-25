@@ -92,7 +92,8 @@ public class Paddles : MonoBehaviour {
 
 			// Set boundaries, top/bottom of the screen that the paddle can't cross
 			Vector3 pos = transform.position;
-			pos.y = Mathf.Clamp(pos.y, 4.0f, 13.0f);
+			//pos.y = Mathf.Clamp(pos.y, 4.0f, 13.0f);
+			pos.y = Mathf.Clamp(pos.y, 2.5f, 14.5f);
 			transform.position = pos;
 
 		}
@@ -112,7 +113,8 @@ public class Paddles : MonoBehaviour {
 
 			// Set boundaries, top/bottom of the screen that the paddle can't cross
 			Vector3 pos = transform.position;
-			pos.y = Mathf.Clamp(pos.y, 4.0f, 13.0f);
+			//pos.y = Mathf.Clamp(pos.y, 4.0f, 13.0f);
+			pos.y = Mathf.Clamp(pos.y, 2.5f, 14.5f);
 			transform.position = pos;
 
 		}
