@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using CinemaDirector;
 
@@ -18,6 +19,9 @@ public class GameManager2 : MonoBehaviour {
 	public GameObject endKey;
 
 	public int gameOverCount = 0;
+
+	public Text player1ScoreTxt;
+	public Text player2ScoreTxt;
 
 	// Use this for initialization
 	void Start () {

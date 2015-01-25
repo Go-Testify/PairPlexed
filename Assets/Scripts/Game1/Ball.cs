@@ -17,7 +17,7 @@ public class Ball : MonoBehaviour {
 	private int numMentalMoves = 0;
 	public PhysicMaterial physicsMatBouncyMax;
 	public GameObject ballQuestionMark;
-
+	public GameObject ballExclamationMark;
 	// Use this for initialization
 	void Start () {
 
@@ -37,7 +37,21 @@ public class Ball : MonoBehaviour {
 	void Update () {
 
 		// Check if the ball has left the game on the left/right
-		if (transform.position.x >= startposition.x + ballResetDistance || transform.position.x <= startposition.x - ballResetDistance) {
+		if ((transform.position.x >= startposition.x + ballResetDistance || transform.position.x <= startposition.x - ballResetDistance) && gameManager2.currentGameState != GameManager2.GameState.pongAnimating) {
+
+			//Play Score Sound
+			this.GetComponent<AudioSource>().Play();
+
+			if (transform.position.x >= startposition.x + ballResetDistance) {
+				
+				gameManager2.player1Score++;
+				gameManager2.player1ScoreTxt.text = gameManager2.player1Score + "";
+			}
+			if (transform.position.x <= startposition.x - ballResetDistance) {
+				
+				gameManager2.player2Score++;
+				gameManager2.player2ScoreTxt.text = gameManager2.player2Score + "";
+			}
 
 			/*if(gameManager2.currentGameState == GameManager2.GameState.pongPlaying2 && gameManager2.totalHits > 2)
 			{

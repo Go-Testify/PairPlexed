@@ -15,6 +15,7 @@ public class Paddles : MonoBehaviour {
 
 	GameObject ball;
 	GameObject ballQuestionMark;
+	GameObject ballExclamationMark;
 	GameObject player1;
 	GameObject player2;
 	GameObject borderBottomGap;
@@ -31,6 +32,7 @@ public class Paddles : MonoBehaviour {
 		// Get a reference to the ball
 		ball = GameObject.Find("Ball");
 		ballQuestionMark = ball.transform.Find("Mark").gameObject;
+		ballExclamationMark = ball.transform.Find("Exclamataion").gameObject;
 
 		player1 = GameObject.Find("Player1");
 		player2 = GameObject.Find("Player2");
@@ -127,7 +129,8 @@ public class Paddles : MonoBehaviour {
 			
 			// Jump
 			if (Input.GetKeyDown(KeyCode.W) && isFalling == false) {
-				
+
+				gameObject.GetComponent<AudioSource>().Play();
 				rigidbody.AddForce(Vector3.up * jumpSpeed);
 				
 				isFalling = true;
@@ -155,6 +158,7 @@ public class Paddles : MonoBehaviour {
 			if (Input.GetKeyDown(KeyCode.UpArrow) && isFalling == false) {
 			//if (Input.GetKey(KeyCode.UpArrow) && isFalling == false) {
 					
+				gameObject.GetComponent<AudioSource>().Play();
 				rigidbody.AddForce(Vector3.up * jumpSpeed);
 
 				//animation.Play();
@@ -194,7 +198,7 @@ public class Paddles : MonoBehaviour {
 	/// </summary>
 	void OnCollisionEnter (Collision other) {
 
-		if (other.gameObject.name == "BorderBottomRight" || other.gameObject.name == "BorderBottomLeft" || other.gameObject.name == "Player1" || other.gameObject.name == "Player2")
+		if (other.gameObject.name == "BorderBottomRight" || other.gameObject.name == "Ball" || other.gameObject.name == "BorderBottomLeft" || other.gameObject.name == "Player1" || other.gameObject.name == "Player2")
 		{
 			isFalling = false;
 		}
@@ -203,24 +207,32 @@ public class Paddles : MonoBehaviour {
 
 		if (other.gameObject.name == "Key")
 		{
-			Debug.Log ("Key");
+			other.gameObject.GetComponent<AudioSource>().Play();
 			Destroy(other.gameObject);
 			borderBottomGap.SetActive(false);
 		}
 
 		if (other.gameObject.name == "Ball")
-			scoreCounter (other);
+		{
+			if ((gameManager2.currentGameState == GameManager2.GameState.pongPlaying || gameManager2.currentGameState == GameManager2.GameState.pongPlaying2))
+			{
+				if (gameObject.name == "Player1") gameObject.GetComponent<AudioSource>().Play();
+				else if (gameObject.name == "Player2") gameObject.GetComponent<AudioSource>().Play();
+			}
 
-		if (other.gameObject.name == "EndGameTrigger")
+			scoreCounter (other);
+		}
+
+		/*if (other.gameObject.name == "EndGameTrigger")
 		{
 			Debug.Log ("EndGameTrigger");
 			gameManager2.gameOverCount++;
 			if(gameManager2.gameOverCount == 2)
 			{
 				Debug.Log ("End Game");
-				Application.LoadLevel(0);
+				Application.LoadLevel(2);
 			}
-		}
+		}*/
 
 	}
 	
@@ -233,7 +245,7 @@ public class Paddles : MonoBehaviour {
 			if(gameManager2.gameOverCount == 2)
 			{
 				Debug.Log ("End Game");
-				Application.LoadLevel(0);
+				Application.LoadLevel(2);
 			}
 		}
 		
@@ -246,17 +258,18 @@ public class Paddles : MonoBehaviour {
 		
 		// Check which player paddle the ball has hit and increment their score
 		if (other.gameObject.name == "Ball") {
-			
-			if (gameObject.name == "Player1") {
+
+
+			/*if (gameObject.name == "Player1") {
 				
 				gameManager2.player1Score++;
-				
+				gameManager2.player1ScoreTxt.text = gameManager2.player1Score + "";
 			}
 			else if (gameObject.name == "Player2") {
 				
 				gameManager2.player2Score++;
-				
-			}
+				gameManager2.player2ScoreTxt.text = gameManager2.player2Score + "";
+			}*/
 
 			gameManager2.totalHits++;
 			
@@ -274,7 +287,10 @@ public class Paddles : MonoBehaviour {
 			ball.rigidbody.useGravity = true;
 			ball.rigidbody.drag = 1;
 			gameManager2.totalHits = 0;
-
+			gameManager2.player1Score = 0;
+			gameManager2.player1ScoreTxt.text = gameManager2.player1Score + "0";
+			gameManager2.player2Score = 0;
+			gameManager2.player2ScoreTxt.text = gameManager2.player2Score + "0";
 			StartCoroutine(CoroutineActions());
 		}
 		else if (gameManager2.currentGameState == GameManager2.GameState.pongEnding) 
@@ -301,12 +317,16 @@ public class Paddles : MonoBehaviour {
 
 	IEnumerator CoroutineActions ()
 	{
+		Debug.Log ("CoroutineActions");
 
 		ball.collider.sharedMaterial = physicsMatBouncyMed;
 
 		yield return new WaitForSeconds(4f);
 
-		ballQuestionMark.SetActive(true);
+		if (gameManager2.currentGameState == GameManager2.GameState.pongPlaying2)
+			ballExclamationMark.SetActive(true);
+		else
+			ballQuestionMark.SetActive(true);
 
 		yield return new WaitForSeconds(5f);
 
@@ -333,7 +353,7 @@ public class Paddles : MonoBehaviour {
 		if (gameManager2.currentGameState == GameManager2.GameState.pongPlaying2) {
 			gameManager2.currentGameState = GameManager2.GameState.platformPlaying;
 			yield return new WaitForSeconds(2f);
-			ballQuestionMark.SetActive(false);
+			ballExclamationMark.SetActive(false);
 			ball.collider.sharedMaterial = null;
 			gameManager2.ShowEnd();
 			yield return new WaitForSeconds(2f);
@@ -341,6 +361,13 @@ public class Paddles : MonoBehaviour {
 
 		// Move to 2nd pong game phase if you are in the 1st pong play phase
 		else if (gameManager2.currentGameState == GameManager2.GameState.pongPlaying) {
+			ballQuestionMark.SetActive(false);
+			yield return new WaitForSeconds(2f);
+			player1.transform.Find("Question Mark").gameObject.SetActive(true);
+			player2.transform.Find("Question Mark").gameObject.SetActive(true);
+			yield return new WaitForSeconds(3f);
+			player1.transform.Find("Question Mark").gameObject.SetActive(false);
+			player2.transform.Find("Question Mark").gameObject.SetActive(false);
 			gameManager2.currentGameState = GameManager2.GameState.pongAnimating;
 			//Play the cutscene
 			gameManager2.PlayCutScene();
