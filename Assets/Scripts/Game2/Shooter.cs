@@ -104,7 +104,7 @@ public class Shooter : MonoBehaviour {
 	{
 		while ( isGamePlaying ) {
 			//Instiate a shooting game object at center and apply a force to fire it
-			Vector3 bulletPos = new Vector3(this.transform.localPosition.x, this.transform.localPosition.y + 0.5f, this.transform.localPosition.z);
+			Vector3 bulletPos = new Vector3(this.transform.localPosition.x, this.transform.localPosition.y + 1.15f, this.transform.localPosition.z);
 			GameObject.Instantiate(bulletPrefab, transform.position + (transform.forward * 2), Quaternion.identity);
 
 			yield return new WaitForSeconds(fireTime);
