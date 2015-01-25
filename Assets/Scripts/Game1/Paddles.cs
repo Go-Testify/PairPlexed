@@ -7,20 +7,17 @@ public class Paddles : MonoBehaviour {
 	public PhysicMaterial physicsMatBouncyMax;
 	public PhysicMaterial physicsMatBouncyMed;
 
-	bool coroutineHasRun = false;
+	public bool coroutineHasRun = false;
 
 	float speedPongPaddles = 0.2f;
 
-	int playerScore1 = 0;
-	int playerScore2 = 0;
-
-	int gravityTriggerHitCount = 2;
+	int gravityTriggerHitCount = 5;
 
 	GameObject ball;
 	GameObject ballQuestionMark;
-
 	GameObject player1;
 	GameObject player2;
+	GameObject borderBottomGap;
 
 	string controlSystem;
 
@@ -37,6 +34,8 @@ public class Paddles : MonoBehaviour {
 
 		player1 = GameObject.Find("Player1");
 		player2 = GameObject.Find("Player2");
+
+		borderBottomGap = GameObject.Find ("BorderBottomGap");
 	}
 	
 	// Update is called once per frame
@@ -44,7 +43,7 @@ public class Paddles : MonoBehaviour {
 	
 		switch (gameManager2.currentGameState)
 		{
-		case GameManager2.GameState.pongPlaying:
+		case GameManager2.GameState.pongPlaying: case GameManager2.GameState.pongAnimating: case GameManager2.GameState.pongPlaying2:
 			pongControls ();
 
 			/*if (gameObject.name == "Player1") {
@@ -66,7 +65,9 @@ public class Paddles : MonoBehaviour {
 
 			break;
 		}
-	
+
+		// Check if score has hit set limit - then trigger gravity
+		scoreCheck ();
 	}
 		
 	//=========================  Pong Controls START =========================
@@ -74,8 +75,6 @@ public class Paddles : MonoBehaviour {
 			
 		// Move each player based on keyboard input
 		if (gameObject.name == "Player1") {
-			
-			//transform.Translate(0, Input.GetAxis("Horizontal") * speed, 0);
 
 			// Up
 			if (Input.GetKey(KeyCode.W)) {
@@ -88,7 +87,12 @@ public class Paddles : MonoBehaviour {
 				
 				transform.Translate(0, -speedPongPaddles, 0);
 			}
-			
+
+			// Set boundaries, top/bottom of the screen that the paddle can't cross
+			Vector3 pos = transform.position;
+			pos.y = Mathf.Clamp(pos.y, 4.0f, 13.0f);
+			transform.position = pos;
+
 		}
 		else if (gameObject.name == "Player2") {
 			
@@ -103,12 +107,16 @@ public class Paddles : MonoBehaviour {
 				
 				transform.Translate(0, -speedPongPaddles, 0);
 			}
+
+			// Set boundaries, top/bottom of the screen that the paddle can't cross
+			Vector3 pos = transform.position;
+			pos.y = Mathf.Clamp(pos.y, 4.0f, 13.0f);
+			transform.position = pos;
+
 		}
-		
-		// Check if score has hit set limit - then trigger gravity
-		scoreCheck ();
 
 	}
+
 	//=========================  Pong Controls END =========================
 	
 	//=========================  Platform Controls START =========================
@@ -149,7 +157,7 @@ public class Paddles : MonoBehaviour {
 					
 				rigidbody.AddForce(Vector3.up * jumpSpeed);
 
-				animation.Play();
+				//animation.Play();
 				
 				isFalling = true;
 			}
@@ -172,9 +180,11 @@ public class Paddles : MonoBehaviour {
 	}
 
 	void OnCollisionStay (){
-		
+
+		//Debug.Log ("OnCollisionStay");
 		// this makes it only possible to jump when you are on the ground
-		isFalling = false;
+		//isFalling = false;
+
 	}
 
 	//=========================  Platform Controls END =========================
@@ -183,8 +193,49 @@ public class Paddles : MonoBehaviour {
 	/// Raises the collision enter event to increase player score
 	/// </summary>
 	void OnCollisionEnter (Collision other) {
-		
-		scoreCounter (other);
+
+		if (other.gameObject.name == "BorderBottomRight" || other.gameObject.name == "BorderBottomLeft" || other.gameObject.name == "Player1" || other.gameObject.name == "Player2")
+		{
+			isFalling = false;
+		}
+
+		Debug.Log (other.gameObject.name);
+
+		if (other.gameObject.name == "Key")
+		{
+			Debug.Log ("Key");
+			Destroy(other.gameObject);
+			borderBottomGap.SetActive(false);
+		}
+
+		if (other.gameObject.name == "Ball")
+			scoreCounter (other);
+
+		if (other.gameObject.name == "EndGameTrigger")
+		{
+			Debug.Log ("EndGameTrigger");
+			gameManager2.gameOverCount++;
+			if(gameManager2.gameOverCount == 2)
+			{
+				Debug.Log ("End Game");
+				Application.LoadLevel(0);
+			}
+		}
+
+	}
+	
+	void OnTriggerEnter (Collider other) {
+
+		if (other.gameObject.name == "EndGameTrigger")
+		{
+			Debug.Log ("EndGameTrigger");
+			gameManager2.gameOverCount++;
+			if(gameManager2.gameOverCount == 2)
+			{
+				Debug.Log ("End Game");
+				Application.LoadLevel(0);
+			}
+		}
 		
 	}
 	
@@ -218,49 +269,101 @@ public class Paddles : MonoBehaviour {
 	/// </summary>
 	void scoreCheck () {
 
-		if (gameManager2.totalHits == gravityTriggerHitCount) {
+		if (gameManager2.totalHits == gravityTriggerHitCount && (gameManager2.currentGameState == GameManager2.GameState.pongPlaying || gameManager2.currentGameState == GameManager2.GameState.pongPlaying2)) {
 
 			ball.rigidbody.useGravity = true;
+			ball.rigidbody.drag = 1;
+			gameManager2.totalHits = 0;
 
-			if (coroutineHasRun == false) {
+			StartCoroutine(CoroutineActions());
+		}
+		else if (gameManager2.currentGameState == GameManager2.GameState.pongEnding) 
+		{
+			gameManager2.currentGameState = GameManager2.GameState.platformPlaying;
 
-				coroutineHasRun = true;
+			// Change Physics materials on various objects
+			//player1.collider.sharedMaterial = physicsMatBouncyMed;
+			//player2.collider.sharedMaterial = physicsMatBouncyMed;
 
-				// Start coroutine before display question mark
-				StartCoroutine(CoroutineActions());
-
-			}
-
+			player1.collider.sharedMaterial = null;
+			player2.collider.sharedMaterial = null;
+			
+			// Add gravity to the players so they fall
+			player1.rigidbody.useGravity = true;
+			player2.rigidbody.useGravity = true;
+			
+			// Return physics based movement to the players
+			player1.rigidbody.isKinematic = false;
+			player2.rigidbody.isKinematic = false;
 		}
 
 	}
 
 	IEnumerator CoroutineActions ()
 	{
-		Debug.Log ("CoroutineActions");
+
+		ball.collider.sharedMaterial = physicsMatBouncyMed;
 
 		yield return new WaitForSeconds(4f);
 
 		ballQuestionMark.SetActive(true);
 
-		yield return new WaitForSeconds(2f);
+		yield return new WaitForSeconds(5f);
 
-		// Change Physics on various objects
-		player1.collider.sharedMaterial = physicsMatBouncyMed;
-		player2.collider.sharedMaterial = physicsMatBouncyMed;
+		// Only allow paddles to fall if you are in the 2nd pong play phase
+		if (gameManager2.currentGameState == GameManager2.GameState.pongPlaying2) {
 
-		player1.rigidbody.useGravity = true;
-		player2.rigidbody.useGravity = true;
+			// Change Physics materials on various objects
+			//player1.collider.sharedMaterial = physicsMatBouncyMed;
+			//player2.collider.sharedMaterial = physicsMatBouncyMed;
 
-		player1.rigidbody.isKinematic = false;
-		player2.rigidbody.isKinematic = false;
+			player1.collider.sharedMaterial = null;
+			player2.collider.sharedMaterial = null;
 
-		gameManager2.currentGameState = GameManager2.GameState.none;
-			
-		yield return new WaitForSeconds(2f);
+			// Add gravity to the players so they fall
+			player1.rigidbody.useGravity = true;
+			player2.rigidbody.useGravity = true;
 
-		gameManager2.currentGameState = GameManager2.GameState.platformPlaying;
+			// Return physics based movement to the players
+			player1.rigidbody.isKinematic = false;
+			player2.rigidbody.isKinematic = false;
+		}
+
+		// Move to platform phase if you are in the 2nd pong play phase
+		if (gameManager2.currentGameState == GameManager2.GameState.pongPlaying2) {
+			gameManager2.currentGameState = GameManager2.GameState.platformPlaying;
+			yield return new WaitForSeconds(2f);
+			ballQuestionMark.SetActive(false);
+			ball.collider.sharedMaterial = null;
+			gameManager2.ShowEnd();
+			yield return new WaitForSeconds(2f);
+		}
+
+		// Move to 2nd pong game phase if you are in the 1st pong play phase
+		else if (gameManager2.currentGameState == GameManager2.GameState.pongPlaying) {
+			gameManager2.currentGameState = GameManager2.GameState.pongAnimating;
+			//Play the cutscene
+			gameManager2.PlayCutScene();
+		}
+	}
+
+	IEnumerator CoroutineBallActions ()
+	{
+		ball.collider.sharedMaterial = physicsMatBouncyMed;
+
+		    for (int i = 1; i >= 0; i += 1) {
+
+				yield return new WaitForSeconds(4f);
+				
+				ballQuestionMark.SetActive(true);
+				
+				yield return new WaitForSeconds(1f);
+				
+				ballQuestionMark.SetActive(false);
+
+		}
+
 		
 	}
-	
+
 }

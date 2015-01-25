@@ -8,15 +8,21 @@ public class Ball : MonoBehaviour {
 	float speedY;
 
 	// Distance to the left/right edge of game
-	int ballResetDistance = 15;
+	int ballResetDistance = 14;
+
+	public GameManager2 gameManager2;
 
 	Vector3 startposition;
+
+	private int numMentalMoves = 0;
+	public PhysicMaterial physicsMatBouncyMax;
+	public GameObject ballQuestionMark;
 
 	// Use this for initialization
 	void Start () {
 
 		// Set initial speed of ball on x and y axis
-		speedX = 10;
+		speedX = 15;
 		speedY = 6;
 
 		// Get the starting position of the ball
@@ -33,11 +39,24 @@ public class Ball : MonoBehaviour {
 		// Check if the ball has left the game on the left/right
 		if (transform.position.x >= startposition.x + ballResetDistance || transform.position.x <= startposition.x - ballResetDistance) {
 
+			/*if(gameManager2.currentGameState == GameManager2.GameState.pongPlaying2 && gameManager2.totalHits > 2)
+			{
+				numMentalMoves++;
+
+				if(numMentalMoves > 50)
+				{
+					Destroy(this.gameObject);
+					CancelInvoke();
+					gameManager2.ShowEnd();
+				}
+			}*/
+
+			transform.position = startposition;
+
 			// Reset the ball to its starting posiiton
-			startBall ();
-			
+			if(!rigidbody.useGravity)
+				startBall();
 		}
-		
 	}
 
 	/// <summary>
@@ -45,10 +64,34 @@ public class Ball : MonoBehaviour {
 	/// </summary>
 	void startBall () {
 
-		transform.position = startposition;
-
 		rigidbody.velocity = new Vector3(speedX, speedY, 0);
 
+		//rigidbody.AddForce(10,6,0, ForceMode.Impulse);
+		/*if(gameManager2.currentGameState == GameManager2.GameState.pongPlaying2 && gameManager2.totalHits > 2)
+		{
+			ballQuestionMark.SetActive(true);
+			InvokeRepeating("IncreaseBallVelocity",0,2);
+		}*/
+
+	}
+
+	public void StartPong2()
+	{
+		gameManager2.currentGameState = GameManager2.GameState.pongPlaying2;
+		transform.position = startposition;
+		rigidbody.useGravity = false;
+		rigidbody.drag = 0;
+		ballQuestionMark.SetActive(false);
+		speedX *= 1.25f;
+		speedY *= 1.25f;
+		this.collider.sharedMaterial = physicsMatBouncyMax;
+		startBall();
+	}
+
+	void IncreaseBallVelocity () {
+
+		rigidbody.velocity = new Vector3(speedX *= 1.2f, speedY, 0);
+			
 	}
 	
 }
