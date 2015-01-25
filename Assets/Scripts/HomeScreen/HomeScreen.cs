@@ -131,7 +131,7 @@ public class HomeScreen : MonoBehaviour {
 					// Check if player has pressed all keys successfully
 					if (playerCounter1 == 4) {
 						
-						//player1Success.Play ();
+						player1Success.Play ();
 						
 					}
 
@@ -154,7 +154,7 @@ public class HomeScreen : MonoBehaviour {
 					// Check if player has pressed all keys successfully
 					if (playerCounter2 == 4) {
 
-						//player2Success.Play ();
+						player2Success.Play ();
 
 					}
 
@@ -162,17 +162,26 @@ public class HomeScreen : MonoBehaviour {
 
 			}
 
-			Debug.Log("Player1 score: " + playerCounter1 + " " + "Player2 score: " + playerCounter2);
-
-			// Load the first level if both players have pressed all the start keys
-			if (playerCounter1 == 4 && playerCounter2 == 4) {
-
-				Application.LoadLevel("Level1_Pong");
-
-			}
-
 		}
 
+		Debug.Log("Player1 score: " + playerCounter1 + " " + "Player2 score: " + playerCounter2);
+		
+		// Load the first level if both players have pressed all the start keys
+		if (playerCounter1 == 4 && playerCounter2 == 4) {
+
+			StartCoroutine("CoroutineLoadLevel");
+			
+		}
+
+	}
+
+	IEnumerator CoroutineLoadLevel ()
+	{
+		
+		yield return new WaitForSeconds(1f);
+		
+		Application.LoadLevel("Game1");
+		
 	}
 
 }
