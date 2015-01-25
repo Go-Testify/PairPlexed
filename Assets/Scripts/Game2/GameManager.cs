@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class GameManager : MonoBehaviour {
@@ -26,6 +27,7 @@ public class GameManager : MonoBehaviour {
 
 	public Sprite[] randomMessages;
 	public AudioSource randomSound;
+	public AudioSource successSound;
 
 	private Color[] colors = new Color[]{Color.black, Color.blue, Color.cyan, Color.gray, Color.green, Color.magenta, Color.red, Color.white, Color.yellow, 
 		new Color(0/255f,100/255f,0/255f)};
@@ -37,6 +39,9 @@ public class GameManager : MonoBehaviour {
 
 	private bool isFirstPlayer1Move = true;
 	private bool isFirstPlayer2Move = true;
+
+	public GameObject[] deleteObjects;
+	public GameObject inAppPurchaseText;
 
 	// Use this for initialization
 	void Start () {
@@ -85,6 +90,8 @@ public class GameManager : MonoBehaviour {
 
 		if(player1Enemy.newColor == player2Enemy.newColor && player1Enemy.isActive && player2Enemy.isActive)
 		{
+			successSound.Play();
+
 			Debug.Log ("Matching");
 
 			currentGameState = GameState.matching;
@@ -102,7 +109,14 @@ public class GameManager : MonoBehaviour {
 
 		//
 		if(gameCount == 8)
+		{
+			foreach(GameObject go in deleteObjects)
+			{
+				Destroy(go);
+				inAppPurchaseText.SetActive(true);
+			}
 			Debug.Log ("End Game");
+		}
 
 		/*int numRows = enemyPositions.Count;
 		int numColumns = enemyPositionsRow1.Length;

@@ -91,9 +91,7 @@ public class Enemy : MonoBehaviour {
 	}
 
 	public void deactivateCell() {
-		//spriteBody.material.color = Color.gray;
-		//spriteBody.enabled = false;
-		//spriteMessage.enabled = false;
+		animation.Play();
 		canChange = false;
 		isActive = false;
 		StartCoroutine(deactivate());
