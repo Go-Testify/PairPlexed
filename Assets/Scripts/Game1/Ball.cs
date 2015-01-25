@@ -96,8 +96,8 @@ public class Ball : MonoBehaviour {
 		rigidbody.useGravity = false;
 		rigidbody.drag = 0;
 		ballQuestionMark.SetActive(false);
-		speedX *= 1.25f;
-		speedY *= 1.25f;
+		speedX *= 1.5f;
+		speedY *= 1.5f;
 		this.collider.sharedMaterial = physicsMatBouncyMax;
 		startBall();
 	}

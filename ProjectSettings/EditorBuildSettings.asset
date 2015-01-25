@@ -9,3 +9,5 @@ EditorBuildSettings:
     path: Assets/Scenes/Prototypes/HomeScreen.unity
   - enabled: 1
     path: Assets/Scenes/Prototypes/Game1.unity
+  - enabled: 1
+    path: Assets/Scenes/Prototypes/Level2_SpaceInvaders.unity

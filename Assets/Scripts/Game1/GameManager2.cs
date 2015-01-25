@@ -14,6 +14,7 @@ public class GameManager2 : MonoBehaviour {
 	public int player1Score = 0;
 	public int player2Score = 0;
 	public int totalHits = 0;
+	public int gravityTriggerHitCount = 5;
 
 	public Cutscene cutscene;
 	public GameObject endKey;

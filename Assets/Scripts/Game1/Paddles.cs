@@ -11,11 +11,12 @@ public class Paddles : MonoBehaviour {
 
 	float speedPongPaddles = 0.2f;
 
-	int gravityTriggerHitCount = 5;
+
 
 	GameObject ball;
 	GameObject ballQuestionMark;
 	GameObject ballExclamationMark;
+	GameObject ballLightbulb; 
 	GameObject player1;
 	GameObject player2;
 	GameObject borderBottomGap;
@@ -33,7 +34,7 @@ public class Paddles : MonoBehaviour {
 		ball = GameObject.Find("Ball");
 		ballQuestionMark = ball.transform.Find("Mark").gameObject;
 		ballExclamationMark = ball.transform.Find("Exclamataion").gameObject;
-
+		ballLightbulb = ball.transform.Find("Lightbulb").gameObject;
 		player1 = GameObject.Find("Player1");
 		player2 = GameObject.Find("Player2");
 
@@ -284,7 +285,7 @@ public class Paddles : MonoBehaviour {
 	/// </summary>
 	void scoreCheck () {
 
-		if (gameManager2.totalHits == gravityTriggerHitCount && (gameManager2.currentGameState == GameManager2.GameState.pongPlaying || gameManager2.currentGameState == GameManager2.GameState.pongPlaying2)) {
+		if (gameManager2.totalHits == gameManager2.gravityTriggerHitCount && (gameManager2.currentGameState == GameManager2.GameState.pongPlaying || gameManager2.currentGameState == GameManager2.GameState.pongPlaying2)) {
 
 			ball.rigidbody.useGravity = true;
 			ball.rigidbody.drag = 1;
@@ -364,13 +365,17 @@ public class Paddles : MonoBehaviour {
 		// Move to 2nd pong game phase if you are in the 1st pong play phase
 		else if (gameManager2.currentGameState == GameManager2.GameState.pongPlaying) {
 			ballQuestionMark.SetActive(false);
+			yield return new WaitForSeconds(3f);
+			ballLightbulb.SetActive(true);
 			yield return new WaitForSeconds(2f);
+			ballLightbulb.SetActive(false);
 			player1.transform.Find("Question Mark").gameObject.SetActive(true);
 			player2.transform.Find("Question Mark").gameObject.SetActive(true);
 			yield return new WaitForSeconds(3f);
 			player1.transform.Find("Question Mark").gameObject.SetActive(false);
 			player2.transform.Find("Question Mark").gameObject.SetActive(false);
 			gameManager2.currentGameState = GameManager2.GameState.pongAnimating;
+			gameManager2.gravityTriggerHitCount = 10;
 			//Play the cutscene
 			gameManager2.PlayCutScene();
 		}
