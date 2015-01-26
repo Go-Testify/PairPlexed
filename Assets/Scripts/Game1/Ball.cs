@@ -92,6 +92,7 @@ public class Ball : MonoBehaviour {
 	public void StartPong2()
 	{
 		gameManager2.currentGameState = GameManager2.GameState.pongPlaying2;
+		gameManager2.
 		transform.position = startposition;
 		rigidbody.useGravity = false;
 		rigidbody.drag = 0;
